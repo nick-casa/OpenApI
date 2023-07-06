@@ -81,8 +81,8 @@ def run_conversation(messages):
             function_name = response_message["function_call"]["name"]
             function_args = json.loads(response_message["function_call"]["arguments"])
             available_functions = {
-                "send_email_to_rep": send_email_to_rep,
-                "send_email_to_user": send_email_to_user,
+                "send_email_to_rep": functions.send_email_to_rep,
+                "send_email_to_user": functions.send_email_to_user,
             }
             function_to_call = available_functions[function_name]
             function_response = function_to_call(**function_args)
