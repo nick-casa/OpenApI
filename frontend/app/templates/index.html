@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+</head>
+<body>
+    <div id="chatbox">
+        <!-- Messages will be added here by JavaScript -->
+    </div>
+
+    <form id="message-form" action="">
+        <input id="message-input" type="text" name="message" autocomplete="off">
+        <button type="submit">Send</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
