@@ -13,11 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
         // add bot's initial message(s) to the chat
         if (data && data.length > 0) {
-            const lastMessage = data[data.length - 1];
-            addMessageToChat(lastMessage.role, lastMessage.content);
-            messageLog.push(lastMessage);
-            console.log(messageLog);
+            data.forEach(message => { addMessageToChat(message.role, message.content) }) ;
         }
+        console.log(messageLog);
     });
 
     document.querySelector('#message-form').onsubmit = () => {
@@ -50,10 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // add bot's response to the chat
             if (data && data.length > 0) {
                 const lastMessage = data[data.length - 1];
-                setTimeout(() => {
-                    liBotTyping.innerHTML = `Travel Agent: ${lastMessage.content}`;
+                if (lastMessage.role == "assistant") {
+                    setTimeout(() => {
+                    liBotTyping.innerHTML = `Travel Agent: ${lastMessage.content.split('\n').join('<br>')}`;
                 }, 2000);  // replace the typing indicator with the message after a delay
-                messageLog.push(lastMessage);
+                    messageLog.push(lastMessage);
+                    console.log(messageLog)
+                }
             }
         });
 
@@ -66,12 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function addMessageToChat(sender, message) {
-    const li = document.createElement('li');
+    messageLog.push({ role: sender, content: message });
+    if (sender == "assistant" || sender == "user") {
+        const li = document.createElement('li');
 
-    let senderDict = { "assistant": "bot", "user": "user" };
-    let innerDict = { "assistant": "Travel Agent", "user": "You" };
+        let senderDict = { "assistant": "bot", "user": "user" };
+        let innerDict = { "assistant": "Travel Agent", "user": "You" };
 
-    li.className = `message-${senderDict[sender]}`;
-    li.innerHTML = `${innerDict[sender]}: ${message}`;
-    document.querySelector('#chatbox').append(li);
+        li.className = `message-${senderDict[sender]}`;
+        li.innerHTML = `${innerDict[sender]}: ${message.split('\n').join('<br>')}`;
+        console.log(message);
+        document.querySelector('#chatbox').append(li);
+    }
 }

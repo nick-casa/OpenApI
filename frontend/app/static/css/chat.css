@@ -30,6 +30,7 @@ body {
     padding: 10px;
     border: 1px solid #ddd;
     border-right: none;
+    outline: none; /* This will remove the default browser highlight */
 }
 
 #message-form button {
@@ -40,8 +41,8 @@ body {
 
 .message-user, .message-bot {
     max-width: 60%;
-    margin-bottom: 10px;
-    padding: 10px;
+    margin-bottom: 15px; /* This will add more space between the bubbles */
+    padding: 15px; /* This will add more padding inside the bubbles */
     border-radius: 20px;
     color: white;
     display: flex;
@@ -59,7 +60,6 @@ body {
 
 .typing-indicator {
     animation: blink 1s linear infinite;
-    margin-left: 5px;
 }
 
 @keyframes blink {
