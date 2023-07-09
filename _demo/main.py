@@ -1,4 +1,4 @@
-import functions
+import functions as f
 import openai
 import json
 import os
@@ -41,7 +41,7 @@ def run_conversation(messages):
                         "description": "User's travel budget",
                     },
                 },
-                "required": ["email_address", "departing_location", "budget", "name", "dates", "destination"],
+                "required": ["email", "departing_location", "budget", "name", "dates", "destination"],
             },
         },
         {
@@ -76,13 +76,13 @@ def run_conversation(messages):
             function_call="auto",
         )
         response_message = response["choices"][0]["message"]
-
+        print(response_message)
         if response_message.get("function_call"):
             function_name = response_message["function_call"]["name"]
             function_args = json.loads(response_message["function_call"]["arguments"])
             available_functions = {
-                "send_email_to_rep": functions.send_email_to_rep,
-                "send_email_to_user": functions.send_email_to_user,
+                "send_email_to_rep": f.send_email_to_rep,
+                "send_email_to_user": f.send_email_to_user,
             }
             function_to_call = available_functions[function_name]
             function_response = function_to_call(**function_args)
@@ -104,10 +104,10 @@ def run_conversation(messages):
 messages = [
     {
         "role": "system",
-        "content": """You are a helpful travel agent that is helping plan a trip. Throughout the conversation, retrieve the following pieces of information
+        "content": """ You are a helpful travel agent that is helping plan a trip. Throughout the conversation, retrieve the following pieces of information
                     (along with any other pieces of information you may need to plan a trip): NAME, EMAIL, DEPARTING LOCATION, DESTINATION, DATES, and BUDGET.
                     Before concluding the conversation, work with the user to make a general itinerary. Then, when the user is satisfied with the itinerary,
-                    email it to them and also email the sales rep. Start the conversation by greeting the user."""
+                    email it to them and also email the sales rep. Start the conversation by greeting the user. """
     }
 ]
 run_conversation(messages)

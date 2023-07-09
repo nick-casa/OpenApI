@@ -1,9 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3BG6Z6CLD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-V3BG6Z6CLD');
+    </script>
+
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
 <body>
+    <div id="logo-container">
+        <!-- Replace 'logo.png' with the path to your logo -->
+        <a href="https://www.mctravels.com/index" target="_blank"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="Agency Logo"></a>
+    </div>
+
     <div id="chatbox">
         <!-- Messages will be added here by JavaScript -->
     </div>
@@ -12,6 +27,10 @@
         <input id="message-input" type="text" name="message" autocomplete="off" placeholder="Type message here">
         <button type="submit">Send</button>
     </form>
+
+    <div id="branding" >
+        Powered by <a href="https://leadup.solutions" id="branding-link" target="_blank">LeadUp Solutions</a>
+    </div>
 
     <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>

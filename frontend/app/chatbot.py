@@ -6,38 +6,42 @@ from dotenv import load_dotenv
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def respond_to(message):
-    # Logic for generating a response goes here
-    return "I'm a chatbot!"
+## GPT Functions
+def retrieved_user_info(email, name, **args):
+    print("------- User Information Retrieved ------")
 
-def send_email_to_rep(name, email, departing_location, destination, dates, budget):
-    print("------- sent email to rep ------")
-    print(json.dumps({"name": name,
-                        "email": email,
-                        "departing": departing_location,
-                        "destination":destination,
-                        "dates":dates,
-                        "budget":budget}))
+    return json.dumps({"status": "Function called successfully!"})
 
-    """Send an email to a sales representative with the user's travel preferences"""
-    # Implement your email sending logic here
-    return json.dumps({"status": "Email sent to the representative successfully!"})
+def retrieved_user_preferences(name, email, departing_location, destination, dates, budget,additional_information, **args):
+    print("------- User Preferences Retrieved ------")
 
-def send_email_to_user(email, name, travel_itinerary):
-    print("------- sent email to user ------")
-    print(json.dumps({"name": name,
-                        "email": email,
-                        "itinerary": travel_itinerary}))
+    return json.dumps({"status": "Function called successfully!"})
 
-    # Implement your email sending logic here
-    return json.dumps({"status": "Email sent to the user successfully!"})
-
+## Conversation Function
 def run_message(messages):
     model = "gpt-3.5-turbo-0613"
     functions = [
         {
-            "name": "send_email_to_rep",
-            "description": "Send an email to a sales representative with the lead's information and travel preferences",
+            "name": "retrieved_user_info",
+            "description": "Trigger this function once user's name and email have been collected.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "description": "User's email address",
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "User's full name",
+                    },
+                },
+                "required": ["email", "name"],
+            },
+        },
+        {
+            "name": "retrieved_user_preferences",
+            "description": "Trigger this function once user's travel preferences have been collected.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -65,32 +69,14 @@ def run_message(messages):
                         "type": "string",
                         "description": "User's travel budget",
                     },
-                },
-                "required": ["email", "departing_location", "budget", "name", "dates", "destination"],
-            },
-        },
-        {
-            "name": "send_email_to_user",
-            "description": "Send an email to the user with a detailed example travel itinerary",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "email": {
+                    "additional_information": {
                         "type": "string",
-                        "description": "Email address of the user",
-                    },
-                    "name": {
-                        "type": "string",
-                        "description": "Full name of the user",
-                    },
-                    "travel_itinerary": {
-                        "type": "string",
-                        "description": "Example itinerary of the entire trip by day",
+                        "description": "a bulleted summary of the important points of the conversation",
                     },
                 },
-                "required": ["email", "travel_itinerary", "name"],
+                "required": ["email", "departing_location", "budget", "name", "dates", "destination","additional_information"],
             },
-        },
+        }
     ]
 
     response = openai.ChatCompletion.create(
@@ -103,16 +89,40 @@ def run_message(messages):
 
     if response_message.get("function_call"):
         function_name = response_message["function_call"]["name"]
-        function_args = json.loads(response_message["function_call"]["arguments"])
+
+        try:
+            function_args = json.loads(response_message["function_call"]["arguments"])
+        except json.JSONDecodeError as e:
+            print(f"Failed to decode JSON: {e}")
+            print(f"Original string: {response_message['function_call']['arguments']}")
+
         available_functions = {
-            "send_email_to_rep": send_email_to_rep,
-            "send_email_to_user": send_email_to_user,
+            "retrieved_user_preferences": retrieved_user_preferences,
+            "retrieved_user_info": retrieved_user_info,
         }
+
         function_to_call = available_functions[function_name]
         function_response = function_to_call(**function_args)
 
-    messages.append({"role": "assistant", "content": response_message["content"]})
+        messages.append(response_message)
+        messages.append(
+            {
+                "role": "function",
+                "name": function_name,
+                "content": function_response
+            }
+        )
 
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=messages,
+            functions=functions,
+            function_call="auto",
+        )
+        response_message = response["choices"][0]["message"]
+        print(response)
+
+    messages.append({"role": "assistant", "content": response_message["content"]})
 
     return messages
 
