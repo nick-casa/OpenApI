@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
             startConversation(true);
         }
     }
+    else {
+        startConversation(true);
+    }
 
     document.querySelector('#message-form').onsubmit = () => {
         // create new item for list
