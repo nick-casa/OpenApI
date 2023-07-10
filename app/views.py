@@ -1,8 +1,9 @@
-from flask import render_template, request, jsonify
+from flask import render_template, request, jsonify, make_response
 from app import app
 from .chatbot import run_message
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
+from pymongo import DESCENDING
 from dotenv import load_dotenv
 import os
 import uuid
@@ -13,8 +14,6 @@ uri = os.getenv("MONGO_URI")
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
-
-# Select your database
 db = client['magiccarpet_ib']
 
 def add_user(user_id):
@@ -24,25 +23,42 @@ def log_message(user_id, messages):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     db.messages.insert_one({"user_id": user_id, "messages": messages, "timestamp": timestamp})
 
+def get_last_conversation(user_id):
+    # Query the database for the user's messages, sorting by timestamp in descending order
+    # Here it's assumed your message documents have a 'user_id' field and a 'timestamp' field
+    user_messages = db.messages.find({"user_id": user_id}).sort("timestamp", DESCENDING)
+
+    # Return the most recent message, if it exists
+    if user_messages.count() > 0:
+        return user_messages[0]
+    else:
+        return None
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/start_conversation', methods=['POST'])
 def start_conversation():
-    user_id = str(uuid.uuid4())
-    add_user(user_id)
-    messages = [
-        {
+    user_id = request.cookies.get('user_id')
+    data = request.json
+    new_convo = data.get('new_convo')
+
+    if user_id is None:
+        user_id = str(uuid.uuid4())
+        add_user(user_id)
+
+    if new_convo:
+        messages = [
+            {
             "role": "system",
             "content": """ You are a travel agent that is helping a user plan a trip; Your job is only to plan a trip.
-                        Please ensure all completions are in line with this objective.
+                        Please ensure the conversation stays in line with this objective.
 
                         Start the conversation by greeting the user.
                         Early on in the conversation with the user, collect their name and email and call function to log user AS SOON AS INFO IS RETRIEVED.
-                        Before concluding the conversation, work with the user to make a general itinerary; DO NOT GET INTO SPECIFICS.
-                        Then, when the user is satisfied with the itinerary, email it to them.
-                        At the same time, email the sales rep with the summary of your conversation with the user.
+                        Before concluding the conversation, work with the user to make a generalized itinerary; DO NOT GET INTO SPECIFICS.
 
                         Throughout the conversation, retrieve the following pieces of information
                         NAME, EMAIL, DEPARTING LOCATION, DESTINATION, DATES, and BUDGET.
@@ -58,11 +74,20 @@ def start_conversation():
                         CULTURAL EXPERIENCES: Are you interested in immersing yourself in the local culture, traditions, or trying local cuisines?
 
                         DO NOT PROVIDE CODE, JSON, OR SIMILAR SYNTAX UNDER ANY CIRCUMSTANCE
+
+                        After the information is collected and the questions are discussed, summarize the conversation and save the preferences.
                         """
-        }
-    ]
+            }
+        ]
+    else:
+        messages = get_last_conversation(user_id)['messages']
+
     log_message(user_id, messages)
-    return jsonify({"user_id": user_id, "messages": run_message(messages)})
+
+    response = make_response(jsonify({"user_id": user_id, "messages": run_message(messages, user_id)}))
+    response.set_cookie('user_id', user_id, max_age=60*60*24*30) # set cookie to expire after 30 days
+    return response
+
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
@@ -71,7 +96,7 @@ def send_message():
         messages = data['messages']
         user_id = data['user_id']
         log_message(user_id, messages)
-        return jsonify(run_message(messages))
+        return jsonify(run_message(messages, user_id))
     else:
         return 'No message or user id received', 400
 

@@ -1,30 +1,61 @@
 let messageLog = [];
-let user_id = undefined;
 
-document.addEventListener('DOMContentLoaded', () => {
+// The getCookie function
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) {
+            console.log("user found")
+            return c.substring(nameEQ.length, c.length);
+        }
+    }
+    return null;
+}
+
+function startConversation(newConvo) {
     // Call /start_conversation to have the bot initiate the conversation
     fetch('/start_conversation', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+            'new_convo': newConvo
+        })
     })
-    .then(response => response.json())
-        .then(data => {
-            let messages;
-            if (data.messages) {
-                messages = data.messages;
-            }
-            if (data.user_id) {
-                user_id = data.user_id;
-            }
-            console.log(data);
-
-            // add bot's initial message(s) to the chat
-            if (messages && messages.length > 0) {
-                messages.forEach(message => { addMessageToChat(message.role, message.content) }) ;
-            }
+    .then(response =>  response.json())
+    .then(data => {
+        let messages;
+        if (data.messages) {
+            messages = data.messages;
+        }
+        if (data.user_id) {
+            user_id = data.user_id;
+        }
+        // add bot's initial message(s) or last conversation to the chat
+        if (messages && messages.length > 0) {
+            messages.forEach(message => { addMessageToChat(message.role, message.content) }) ;
+        }
     });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    let user_id = getCookie('user_id');
+
+    if (user_id) {
+        const continueChat = confirm("Would you like to continue your last conversation?");
+        if (continueChat) {
+            console.log("false")
+            // The user wants to continue the last chat, so load it up
+            startConversation(false);
+        }
+        else {
+            startConversation(true);
+        }
+    }
 
     document.querySelector('#message-form').onsubmit = () => {
         // create new item for list

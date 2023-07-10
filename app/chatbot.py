@@ -1,24 +1,44 @@
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+from dotenv import load_dotenv
 import openai
 import json
 import os
-from dotenv import load_dotenv
 
+# Retrieve sensitive data
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
+uri = os.getenv("MONGO_URI")
+
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
+db = client['magiccarpet_ib']
 
 ## GPT Functions
 def retrieved_user_info(email, name, **args):
     print("------- User Information Retrieved ------")
-
+    db.users.update_one(
+        {"user_id": args['user_id']},
+        {"$set": {"name": name, "email": email}},
+        upsert=True
+    )
     return json.dumps({"status": "Function called successfully!"})
 
-def retrieved_user_preferences(name, email, departing_location, destination, dates, budget,additional_information, **args):
+def retrieved_user_preferences(name, email, departing_location, destination, dates, budget,summary, **args):
     print("------- User Preferences Retrieved ------")
-
+    db.users.update_one(
+        {"user_id": args['user_id']},
+        {"$set": {"departing": departing_location,
+                    "destination": destination,
+                    "dates": dates,
+                    "budget": budget,
+                    "summary": summary}},
+        upsert=True
+    )
     return json.dumps({"status": "Function called successfully!"})
 
 ## Conversation Function
-def run_message(messages):
+def run_message(messages, user_id):
     model = "gpt-3.5-turbo-0613"
     functions = [
         {
@@ -69,7 +89,7 @@ def run_message(messages):
                         "type": "string",
                         "description": "User's travel budget",
                     },
-                    "additional_information": {
+                    "summary": {
                         "type": "string",
                         "description": "a bulleted summary of the important points of the conversation",
                     },
@@ -102,7 +122,7 @@ def run_message(messages):
         }
 
         function_to_call = available_functions[function_name]
-        function_response = function_to_call(**function_args)
+        function_response = function_to_call(user_id=user_id,**function_args)
 
         messages.append(response_message)
         messages.append(
