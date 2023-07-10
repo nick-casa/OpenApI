@@ -9,7 +9,6 @@ function getCookie(name) {
         var c = ca[i];
         while (c.charAt(0) == ' ') c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) == 0) {
-            console.log("user found")
             return c.substring(nameEQ.length, c.length);
         }
     }
@@ -52,12 +51,9 @@ function startConversation(newConvo) {
 
 document.addEventListener('DOMContentLoaded', () => {
     user_id = getCookie('user_id');
-
     if (user_id) {
         const continueChat = confirm("Would you like to continue your last conversation?");
         if (continueChat) {
-            console.log("false")
-            // The user wants to continue the last chat, so load it up
             startConversation(false);
         }
         else {
@@ -97,9 +93,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             // add bot's response to the chat
             if (data && data.length > 0) {
-                console.log(data);
                 const lastMessage = data[data.length - 1];
-                if (lastMessage.role == "assistant") {
+                if (lastMessage.role == "assistant" && lastMessage.content) {
                     let wordCount = lastMessage.content.trim().split(/\s+/).length;
                     setTimeout(() => {
                         liBotTyping.innerHTML = `Travel Agent: ${lastMessage.content.split('\n').join('<br>')}`;
@@ -127,7 +122,6 @@ function addMessageToChat(sender, message) {
 
         li.className = `message-${senderDict[sender]}`;
         li.innerHTML = `${innerDict[sender]}: ${message.split('\n').join('<br>')}`;
-        console.log(message);
         document.querySelector('#chatbox').append(li);
     }
 }
