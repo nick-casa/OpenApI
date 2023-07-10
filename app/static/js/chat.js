@@ -1,4 +1,5 @@
 let messageLog = [];
+let user_id = getCookie('user_id');
 
 // The getCookie function
 function getCookie(name) {
@@ -13,6 +14,12 @@ function getCookie(name) {
         }
     }
     return null;
+}
+
+function getCookieExpiryDate(numDays) {
+    let date = new Date();
+    date.setTime(date.getTime() + (numDays * 24 * 60 * 60 * 1000));
+    return date.toUTCString();
 }
 
 function startConversation(newConvo) {
@@ -33,7 +40,8 @@ function startConversation(newConvo) {
             messages = data.messages;
         }
         if (data.user_id) {
-            user_id = data.user_id;
+            document.cookie = `user_id=${data.user_id}; expires=${getCookieExpiryDate(30)}; path=/`;
+            user_id = getCookie('user_id');
         }
         // add bot's initial message(s) or last conversation to the chat
         if (messages && messages.length > 0) {
@@ -43,7 +51,7 @@ function startConversation(newConvo) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    let user_id = getCookie('user_id');
+    user_id = getCookie('user_id');
 
     if (user_id) {
         const continueChat = confirm("Would you like to continue your last conversation?");
