@@ -10,6 +10,18 @@
         gtag('config', 'G-V3BG6Z6CLD');
     </script>
 
+    <script src="https://cdn.botpress.cloud/webchat/v0/inject.js"></script>
+    <script>
+      window.botpressWebChat.init({
+          "composerPlaceholder": "Chat with Travel Assistant",
+          "botConversationDescription": "Itinerary Builder",
+          "botId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
+          "hostUrl": "https://cdn.botpress.cloud/webchat/v0",
+          "messagingUrl": "https://messaging.botpress.cloud",
+          "clientId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
+          "botName": "Travel Assistant"
+      });
+    </script>
     <!-- Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
