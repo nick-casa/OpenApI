@@ -39,9 +39,11 @@
         window.botpressWebChat.onEvent(
             function () {
                 window.botpressWebChat.sendEvent({ type: "show" });
+                document.getElementById("btn-close").setAttribute("display","none");
             },
             ["LIFECYCLE.LOADED"]
         );
+
     </script>
     <!--
     <div id="logo-container">
