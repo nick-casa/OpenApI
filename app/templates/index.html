@@ -24,14 +24,13 @@
             "hostUrl": "https://cdn.botpress.cloud/webchat/v0",
             "messagingUrl": "https://messaging.botpress.cloud",
             "botName": "Travel Assistant",
-
             // Set the width of the WebChat container and layout to 100% (Full Screen)
             "containerWidth": "100%25",
             "layoutWidth": "100%25",
-
             // Hide the widget and disable animations
             "hideWidget": true,
             "disableAnimations": true,
+            "stylesheet": "ib.mctravels.com/chatbot.css"  // Add this line
         });
 
         // Opens up the Chatbot by default
@@ -39,10 +38,12 @@
         window.botpressWebChat.onEvent(
             function () {
                 window.botpressWebChat.sendEvent({ type: "show" });
-                document.getElementById("btn-close").setAttribute("display","none");
             },
             ["LIFECYCLE.LOADED"]
         );
+
+
+
 
     </script>
     <!--
