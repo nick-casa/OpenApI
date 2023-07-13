@@ -14,18 +14,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
 <body>
+
     <script src="https://cdn.botpress.cloud/webchat/v0/inject.js"></script>
-    <script>
-    window.botpressWebChat.init({
-        "composerPlaceholder": "Chat with Travel Assistant",
-        "botConversationDescription": "Itinerary Builder",
-        "botId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
-        "hostUrl": "https://cdn.botpress.cloud/webchat/v0",
-        "messagingUrl": "https://messaging.botpress.cloud",
-        "clientId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
-        "botName": "Travel Assistant"
-    });
-    </script>
+    <script src="https://mediafiles.botpress.cloud/20f27abf-8ad3-4c32-bfee-224a11ab4b7c/webchat/config.js" defer></script>
     <!--
     <div id="logo-container">
         <a href="https://www.mctravels.com/index" target="_blank"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="Agency Logo"></a>

@@ -41,7 +41,7 @@ def generated_itinerary(itinerary, **args):
     print("------- User itinerary generated ------")
     db.users.update_one(
         {"user_id": args['user_id']},
-        {"$set": {"itinerary":itinerary}},
+        {"$set": {"itinerary": itinerary}},
         upsert=True
     )
     return json.dumps({"status": "itinerary sent to user!"})
