@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 import uuid
 from datetime import datetime
+import requests
 
 load_dotenv()
 uri = os.getenv("MONGO_URI")
@@ -140,7 +141,7 @@ def gohighlevel_oauth():
         'Content-Type': 'application/x-www-form-urlencoded'
     }
 
-    response = request.post('https://services.leadconnectorhq.com/oauth/token', data=data, headers=headers)
+    response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=data, headers=headers)
 
     if response.status_code != 200:
         # If some error occurs
