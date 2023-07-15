@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, make_response
+from flask import render_template, request, jsonify, make_response,send_from_directory
 from app import app
 from .chatbot import run_message
 from pymongo.mongo_client import MongoClient
@@ -100,3 +100,6 @@ def send_message():
     else:
         return 'No message or user id received', 400
 
+@app.route('/stylesheet.css')
+def serve_stylesheet():
+    return send_from_directory(app.static_folder, 'css/chatbot.css')
