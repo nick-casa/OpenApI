@@ -9,6 +9,8 @@ import os
 import uuid
 from datetime import datetime, timedelta
 import requests
+from bson.objectid import ObjectId
+
 
 load_dotenv()
 uri = os.getenv("MONGO_URI")
@@ -173,3 +175,59 @@ def initiate_auth():
         ]
     }
     return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
+
+@app.route('/refreshToken')
+def refresh_token():
+    token_id=request.args.get("token_id")
+    # Get the token data from the database
+    token_data = db.auth_tokens.find_one({"_id": ObjectId(token_id)})
+    if token_data is None:
+        return jsonify({'error': 'Token not found.'}), 404
+
+    refresh_token = token_data.get('refresh_token')
+    if refresh_token is None:
+        return jsonify({'error': 'Refresh token not found in the token data.'}), 404
+
+    # Prepare the data for the token refresh request
+    data = {
+        'client_id': clientID,
+        'client_secret': clientSecret,
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'user_type': 'Location',
+        'redirect_uri': 'http://localhost:3000/oauth/callback'
+    }
+
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    # Make the token refresh request
+    response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=data, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Error: Received status code {response.status_code} from token refresh request")
+        print(f"Response text: {response.text}")
+        return jsonify({'error': 'An error occurred.'}), response.status_code
+
+    new_token_data = response.json()
+
+    # Compute the new expiration date
+    expires_in_seconds = new_token_data.get('expires_in', 0)
+    new_expiration_date = datetime.now() + timedelta(seconds=expires_in_seconds)
+
+    # Update the token data
+    new_token_data['current_date'] = datetime.now()
+    new_token_data['expiration_date'] = new_expiration_date
+
+    # Update the token data in the database
+    db.auth_tokens.update_one({"_id": ObjectId(token_id)}, {"$set": new_token_data})
+
+    # Convert ObjectId to string before returning it in the response
+    if "_id" in new_token_data:
+        new_token_data["_id"] = str(new_token_data["_id"])
+
+    print(f"Successfully refreshed and updated token data in auth_tokens collection: {new_token_data}")
+
+    return jsonify({'data': new_token_data})
