@@ -110,6 +110,8 @@ def serve_stylesheet():
     return send_from_directory(app.static_folder, 'css/chatbot.css')
 
 
+
+
 @app.route('/gohighlevel/oauth')
 def gohighlevel_oauth():
     code = request.args.get('code')
@@ -156,3 +158,18 @@ def gohighlevel_oauth():
     print(f"Successfully inserted token data into auth_tokens collection: {token_data}")
 
     return jsonify({'data': token_data})
+
+
+@app.route('/initiateAuth')
+def initiate_auth():
+    options = {
+        'requestType': 'code',
+        'redirectUri': 'https://ib.mctravels.com/gohighlevel/oauth',
+        'clientId': clientID,
+        'scopes': [
+            'conversations.write',
+            'contacts.write',
+            'conversations/message.write'
+        ]
+    }
+    return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
