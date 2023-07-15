@@ -144,7 +144,15 @@ def gohighlevel_oauth():
     response = requests.post('https://services.leadconnectorhq.com/oauth/token', data=data, headers=headers)
 
     if response.status_code != 200:
-        # If some error occurs
+        # Log the status code and response text for debugging
+        print(f"Error: Received status code {response.status_code} from token request")
+        print(f"Response text: {response.text}")
         return jsonify({'error': 'An error occurred.'})
 
-    return jsonify({'data': response.json()})
+    token_data = response.json()
+    # Insert the token data into the MongoDB collection
+    db.auth_tokens.insert_one(token_data)
+
+    print(f"Successfully inserted token data into auth_tokens collection: {token_data}")
+
+    return jsonify({'data': token_data})
