@@ -43,6 +43,16 @@
                 ["LIFECYCLE.LOADED"]
             );
 
+            const interval = setInterval(() => {
+                if (window.botpressWebChat) {
+                    window.botpressWebChat.sendPayload({
+                        type: "trigger",
+                        payload: {}
+                    });
+                    clearInterval(interval);
+                }
+            }, 1000);
+
         </script>
     </div>
 

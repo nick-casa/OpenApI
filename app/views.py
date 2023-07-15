@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, make_response,send_from_directory
+from flask import render_template, request, jsonify, make_response,send_from_directory, redirect
 from app import app
 from .chatbot import run_message
 from pymongo.mongo_client import MongoClient
@@ -11,6 +11,10 @@ from datetime import datetime
 
 load_dotenv()
 uri = os.getenv("MONGO_URI")
+clientID = os.getenv("GHL_APP_CLIENT_ID")
+clientSecret = os.getenv("GHL_APP_CLIENT_SECRET")
+baseURL = os.getenv("BASE_URL")
+
 
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
@@ -103,3 +107,18 @@ def send_message():
 @app.route('/stylesheet.css')
 def serve_stylesheet():
     return send_from_directory(app.static_folder, 'css/chatbot.css')
+
+
+@app.route('/initiateAuth')
+def initiate_auth():
+    options = {
+        'requestType': 'code',
+        'redirectUri': 'https://ib.mctravels.com/gohighlevel/oauth',
+        'clientId': clientID,
+        'scopes': [
+            'conversations.write',
+            'contacts.write',
+            'conversations/message.write'
+        ]
+    }
+    return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
