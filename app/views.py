@@ -231,3 +231,39 @@ def refresh_token():
     print(f"Successfully refreshed and updated token data in auth_tokens collection: {new_token_data}")
 
     return jsonify(new_token_data)
+
+@app.route('/get_token/<token_id>', methods=['GET'])
+def get_token(token_id):
+    token_doc = db.auth_tokens.find_one({"_id": ObjectId(token_id)})
+
+    # Check if the token exists
+    if token_doc:
+        # Convert ObjectId to string before returning it in the response
+        token_doc["_id"] = str(token_doc["_id"])
+        return jsonify({"data": token_doc})
+    else:
+        return jsonify({"error": "No token found for this user"}), 404
+
+
+@app.route('/get_valid_token', methods=['GET'])
+def get_valid_token_route():
+
+    # Get the most recent token, regardless of whether it has expired
+    token_doc = db.auth_tokens.find_one({}, sort=[("created_at", DESCENDING)])
+
+    # Check if a token was found
+    if token_doc:
+        # Check if the token has expired
+        if token_doc["expiration_date"] < datetime.utcnow():
+            # If the token has expired, refresh it
+            refreshed_token = refresh_token(str(token_doc["_id"]))
+
+            if not refreshed_token:
+                return jsonify({"error": "Failed to refresh token"}), 500
+
+            return refreshed_token
+
+        # If the token has not expired, return it
+        return get_token(str(token_doc["_id"]))
+    else:
+        return jsonify({"error": "No token found"}), 404
