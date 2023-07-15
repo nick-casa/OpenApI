@@ -19,7 +19,7 @@ body::before {
     height: 100%;
     background-image: url("../images/5577672.jpg");
     background-size: cover;
-    opacity: 0.075;
+    opacity: 0.2;
     z-index: -1;
 }
 
@@ -110,4 +110,10 @@ body::before {
 #branding-link{
     color: #888;
     margin-left: 5px;
+}
+
+#bp-web-widget{
+    width:90% !important;
+    max-height: 90% !important;
+    margin: 5%;
 }

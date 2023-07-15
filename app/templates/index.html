@@ -14,38 +14,38 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
 <body>
+    <div className="chatbot">
+        <script src="https://cdn.botpress.cloud/webchat/v0/inject.js"></script>
 
-    <script src="https://cdn.botpress.cloud/webchat/v0/inject.js"></script>
-
-    <script>
-        window.botpressWebChat.init({
-            "botId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
-            "clientId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
-            "hostUrl": "https://cdn.botpress.cloud/webchat/v0",
-            "messagingUrl": "https://messaging.botpress.cloud",
-            "botName": "Travel Assistant",
-            // Set the width of the WebChat container and layout to 100% (Full Screen)
-            "containerWidth": "80%25",
-            "layoutWidth": "80%25",
-            // Hide the widget and disable animations
-            "hideWidget": true,
-            "disableAnimations": true,
-            "stylesheet": "https://ib.mctravels.com/stylesheet.css"
-        });
-
-        // Opens up the Chatbot by default
-        // This lets users start chatting with the Chatbot without needing to click any buttons or menus.
-        window.botpressWebChat.onEvent(
-            function () {
-                window.botpressWebChat.sendEvent({ type: "show" });
-            },
-            ["LIFECYCLE.LOADED"]
-        );
+        <script>
+            window.botpressWebChat.init({
+                "botId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
+                "clientId": "20f27abf-8ad3-4c32-bfee-224a11ab4b7c",
+                "hostUrl": "https://cdn.botpress.cloud/webchat/v0",
+                "messagingUrl": "https://messaging.botpress.cloud",
+                "botName": "Travel Assistant",
+                // Set the width of the WebChat container and layout to 100% (Full Screen)
+                "containerWidth": "100%25",
+                "layoutWidth": "100%25",
+                // Hide the widget and disable animations
+                "hideWidget": true,
+                "disableAnimations": true,
+                "stylesheet": "https://ib.mctravels.com/stylesheet.css"
+            });
 
 
+            // Opens up the Chatbot by default
+            // This lets users start chatting with the Chatbot without needing to click any buttons or menus.
+            window.botpressWebChat.onEvent(
+                function () {
+                    window.botpressWebChat.sendEvent({ type: "show" });
+                },
+                ["LIFECYCLE.LOADED"]
+            );
 
+        </script>
+    </div>
 
-    </script>
     <!--
     <div id="logo-container">
         <a href="https://www.mctravels.com/index" target="_blank"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="Agency Logo"></a>
