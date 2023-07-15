@@ -230,4 +230,4 @@ def refresh_token():
 
     print(f"Successfully refreshed and updated token data in auth_tokens collection: {new_token_data}")
 
-    return jsonify({'data': new_token_data})
+    return jsonify(new_token_data)
