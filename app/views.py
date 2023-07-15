@@ -7,7 +7,7 @@ from pymongo import DESCENDING
 from dotenv import load_dotenv
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 
 load_dotenv()
@@ -110,20 +110,6 @@ def serve_stylesheet():
     return send_from_directory(app.static_folder, 'css/chatbot.css')
 
 
-@app.route('/initiateAuth')
-def initiate_auth():
-    options = {
-        'requestType': 'code',
-        'redirectUri': 'https://ib.mctravels.com/gohighlevel/oauth',
-        'clientId': clientID,
-        'scopes': [
-            'conversations.write',
-            'contacts.write',
-            'conversations/message.write'
-        ]
-    }
-    return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
-
 @app.route('/gohighlevel/oauth')
 def gohighlevel_oauth():
     code = request.args.get('code')
@@ -149,6 +135,18 @@ def gohighlevel_oauth():
         return jsonify({'error': 'An error occurred.'})
 
     token_data = response.json()
+
+    # Get the current date and time
+    current_date = datetime.now()
+
+    # Compute the expiration date
+    expires_in_seconds = token_data.get('expires_in', 0)
+    expiration_date = current_date + timedelta(seconds=expires_in_seconds)
+
+    # Add these dates to the token data
+    token_data['current_date'] = current_date
+    token_data['expiration_date'] = expiration_date
+
     db.auth_tokens.insert_one(token_data)
 
     # Convert ObjectId to string before returning it in the response
