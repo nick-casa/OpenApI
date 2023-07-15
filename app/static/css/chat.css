@@ -111,9 +111,3 @@ body::before {
     color: #888;
     margin-left: 5px;
 }
-
-#bp-web-widget{
-    width:90% !important;
-    max-height: 90% !important;
-    margin: 5%;
-}
