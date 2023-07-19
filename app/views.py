@@ -177,7 +177,7 @@ def initiate_auth():
     return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
 
 @app.route('/refreshToken')
-def refresh_token(token_id):
+def refresh_token():
     token_id=request.args.get("token_id")
     # Get the token data from the database
     token_data = db.auth_tokens.find_one({"_id": ObjectId(token_id)})
