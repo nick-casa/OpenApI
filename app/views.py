@@ -256,6 +256,7 @@ def get_valid_token_route():
         # Check if the token has expired
         if token_doc["expiration_date"] < datetime.utcnow():
             # If the token has expired, refresh it
+            print(str(token_doc["_id"]))
             refreshed_token = refresh_token(str(token_doc["_id"]))
 
             if not refreshed_token:
