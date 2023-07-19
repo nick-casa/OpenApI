@@ -118,3 +118,13 @@ body::before {
     width: 90% !important;
     max-height: 80% !important;
 }
+
+@media screen and (max-width: 800px) {
+
+#bp-web-widget{
+    margin: 0% !important;
+    width: 100% !important;
+    max-height: 100% !important;
+}
+
+}
