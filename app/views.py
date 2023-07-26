@@ -256,7 +256,7 @@ def get_valid_token_route():
         if token_doc["expiration_date"] < datetime.utcnow():
             # If the token has expired, refresh it
             print(str(token_doc["_id"]))
-            refreshed_token = requests.get(url_for('refresh_token', token_id=str(token_doc["_id"])))
+            refreshed_token = requests.get(url_for('refresh_token', token_id=str(token_doc["_id"]), _external=True))
 
             if not refreshed_token:
                 return jsonify({"error": "Failed to refresh token"}), 500
