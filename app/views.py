@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, make_response,send_from_directory, redirect
+from flask import url_for,render_template, request, jsonify, make_response,send_from_directory, redirect
 from app import app
 from .chatbot import run_message
 from pymongo.mongo_client import MongoClient
@@ -176,9 +176,8 @@ def initiate_auth():
     }
     return redirect(f"{baseURL}/oauth/chooselocation?response_type={options['requestType']}&redirect_uri={options['redirectUri']}&client_id={options['clientId']}&scope={' '.join(options['scopes'])}")
 
-@app.route('/refreshToken')
-def refresh_token():
-    token_id=request.args.get("token_id")
+@app.route('/refreshToken/<token_id>', methods=['GET'])
+def refresh_token(token_id):
     # Get the token data from the database
     token_data = db.auth_tokens.find_one({"_id": ObjectId(token_id)})
     if token_data is None:
@@ -257,7 +256,7 @@ def get_valid_token_route():
         if token_doc["expiration_date"] < datetime.utcnow():
             # If the token has expired, refresh it
             print(str(token_doc["_id"]))
-            refreshed_token = refresh_token(str(token_doc["_id"]))
+            refreshed_token = requests.get(url_for('refresh_token', token_id=str(token_doc["_id"])))
 
             if not refreshed_token:
                 return jsonify({"error": "Failed to refresh token"}), 500
